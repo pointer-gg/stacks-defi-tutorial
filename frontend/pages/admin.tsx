@@ -7,10 +7,13 @@ import Auth from "../components/Auth";
 import NumberInput from "../components/NumberInput";
 import PageHeading from "../components/PageHeading";
 import { appDetails, contractOwnerAddress } from "../lib/constants";
+import truncateMiddle from "../lib/truncate";
+import { useTransactionToasts } from "../providers/TransactionToastProvider";
 
 export default function AdminPage() {
   const [exchangeToken, setExchangeToken] = useState<string>('');
   const [mintAmount, setMintAmount] = useState<number>(1_000_000)
+  const { addTransactionToast } = useTransactionToasts()
 
   const mintTokens = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault()
@@ -29,7 +32,7 @@ export default function AdminPage() {
       ],
       network,
       appDetails,
-      onFinish: ({ txId }) => console.log(txId)
+      onFinish: ({ txId }) => addTransactionToast(txId, `Minting ${exchangeToken} to ${truncateMiddle(contractOwnerAddress)}...`),
     }
 
     await openContractCall(options)
