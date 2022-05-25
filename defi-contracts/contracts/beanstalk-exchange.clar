@@ -2,12 +2,12 @@
 (define-constant err-zero-tokens (err u201))
 
 ;; Get contract STX balance
-(define-private (get-stx-balance)
+(define-read-only (get-stx-balance)
   (stx-get-balance (as-contract tx-sender))
 )
 
 ;; Get contract token balance
-(define-private (get-token-balance)
+(define-read-only (get-token-balance)
   (contract-call? .magic-beans get-balance (as-contract tx-sender))
 )
 

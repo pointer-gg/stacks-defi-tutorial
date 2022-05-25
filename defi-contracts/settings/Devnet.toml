@@ -99,7 +99,7 @@ disable_stacks_api = false
 # bitcoin_node_image_url = "quay.io/hirosystems/bitcoind:devnet-v2"
 # stacks_node_image_url = "localhost:5000/stacks-node:devnet-v2"
 # stacks_api_image_url = "blockstack/stacks-blockchain-api:latest"
-stacks_explorer_image_url = "hirosystems/explorer:1.19.1"
+stacks_explorer_image_url = "hirosystems/explorer:latest"
 # bitcoin_explorer_image_url = "quay.io/hirosystems/bitcoin-explorer:devnet"
 # postgres_image_url = "postgres:alpine"
 
