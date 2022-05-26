@@ -15,7 +15,6 @@ export default function LiquidityPage() {
   const { network, address } = useStacks()
   const [exchangeInfo, setExchangeInfo] = useState<ExchangeInfo | undefined>(undefined)
 
-
   const exchangeRatio = exchangeInfo && exchangeInfo.stxBalance ? exchangeInfo.tokenBalance / exchangeInfo.stxBalance : undefined
 
   const fetchExchangeInfoOnLoad = async () => {
