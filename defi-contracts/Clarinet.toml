@@ -8,11 +8,12 @@ cache_dir = "/Users/callummcintyre/.clarinet/cache"
 boot_contracts = ["pox", "costs-v2", "bns"]
 [contracts.beanstalk-exchange]
 path = "contracts/beanstalk-exchange.clar"
-depends_on = []
 
 [contracts.magic-beans]
 path = "contracts/magic-beans.clar"
-depends_on = []
+
+[contracts.magic-beans-lp]
+path = "contracts/magic-beans-lp.clar"
 
 [repl]
 costs_version = 2

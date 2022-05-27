@@ -12,12 +12,15 @@
 )
 
 ;; Provide initial liquidity, defining the initial exchange ratio
-(define-private (provide-liquidity-first (stx-amount uint) (token-amount uint))
+(define-private (provide-liquidity-first (stx-amount uint) (token-amount uint) (provider principal))
     (begin
       ;; send STX from tx-sender to the contract
       (try! (stx-transfer? stx-amount tx-sender (as-contract tx-sender)))
       ;; send tokens from tx-sender to the contract
-      (contract-call? .magic-beans transfer token-amount tx-sender (as-contract tx-sender))
+      (try! (contract-call? .magic-beans transfer token-amount tx-sender (as-contract tx-sender)))
+      ;; mint LP tokens to tx-sender
+      ;; inside as-contract the tx-sender is the exchange contract, so we use tx-sender passed into the function
+      (as-contract (contract-call? .magic-beans-lp mint stx-amount provider))
     )
 )
 
@@ -27,14 +30,27 @@
   (let (
       ;; new tokens = additional STX * existing token balance / existing STX balance
       (contract-address (as-contract tx-sender))
+      (stx-balance (get-stx-balance))
       (token-balance (get-token-balance))
-      (tokens-to-transfer (/ (* stx-amount token-balance) (get-stx-balance)))
+      (tokens-to-transfer (/ (* stx-amount token-balance) stx-balance))
+      
+      ;; new LP tokens = additional STX / existing STX balance * total existing LP tokens
+      (liquidity-token-supply (contract-call? .magic-beans-lp get-total-supply))
+      ;; I've reversed the direction a bit here: we need to be careful not to do a division that floors to zero
+      ;; additional STX / existing STX balance is likely to!
+      ;; Then we end up with zero LP tokens and a sad tx-sender
+      (liquidity-to-mint (/ (* stx-amount liquidity-token-supply) stx-balance))
+
+      (provider tx-sender)
     )
     (begin 
       ;; transfer STX from liquidity provider to contract
       (try! (stx-transfer? stx-amount tx-sender contract-address))
       ;; transfer tokens from liquidity provider to contract
-      (contract-call? .magic-beans transfer tokens-to-transfer tx-sender contract-address)
+      (try! (contract-call? .magic-beans transfer tokens-to-transfer tx-sender contract-address))
+      ;; mint LP tokens to tx-sender
+      ;; inside as-contract the tx-sender is the exchange contract, so we use tx-sender passed into the function
+      (as-contract (contract-call? .magic-beans-lp mint liquidity-to-mint provider))
     )
   )
 )
@@ -46,7 +62,7 @@
     (asserts! (> max-token-amount u0) err-zero-tokens)
 
     (if (is-eq (get-stx-balance) u0) 
-      (provide-liquidity-first stx-amount max-token-amount)
+      (provide-liquidity-first stx-amount max-token-amount tx-sender)
       (provide-liquidity-additional stx-amount)
     )
   )

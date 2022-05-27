@@ -4,6 +4,10 @@
 (define-constant err-owner-only (err u100))
 (define-constant err-amount-zero (err u101))
 
+(define-read-only (get-symbol)
+  (ok "MAGIC")
+)
+
 ;; Custom function to mint tokens, only available to the contract owner
 (define-public (mint (amount uint) (who principal))
   (begin
