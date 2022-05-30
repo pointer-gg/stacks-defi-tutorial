@@ -37,3 +37,8 @@
     (ft-mint? magic-beans-lp amount who)
   )
 )
+
+;; Any user can burn any amount of their own tokens
+(define-public (burn (amount uint))
+  (ft-burn? magic-beans-lp amount tx-sender)
+)

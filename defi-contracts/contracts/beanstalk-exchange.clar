@@ -1,3 +1,5 @@
+(define-constant fee-basis-points u30) ;; 0.3%
+
 (define-constant err-zero-stx (err u200))
 (define-constant err-zero-tokens (err u201))
 
@@ -68,6 +70,37 @@
   )
 )
 
+;; Anyone can remove liquidity by burning their LP tokens
+;; in exchange for receiving their proportion of the STX and token balances
+(define-public (remove-liquidity (liquidity-burned uint))
+  (begin
+    (asserts! (> liquidity-burned u0) err-zero-tokens)
+
+      (let (
+        (stx-balance (get-stx-balance))
+        (token-balance (get-token-balance))
+        (liquidity-token-supply (contract-call? .magic-beans-lp get-total-supply))
+
+        ;; STX withdrawn = liquidity-burned * existing STX balance / total existing LP tokens
+        ;; Tokens withdrawn = liquidity-burned * existing token balance / total existing LP tokens
+        (stx-withdrawn (/ (* stx-balance liquidity-burned) liquidity-token-supply))
+        (tokens-withdrawn (/ (* token-balance liquidity-burned) liquidity-token-supply))
+
+        (contract-address (as-contract tx-sender))
+        (burner tx-sender)
+      )
+      (begin 
+        ;; burn liquidity tokens as tx-sender
+        (try! (contract-call? .magic-beans-lp burn liquidity-burned))
+        ;; transfer STX from contract to tx-sender
+        (try! (as-contract (stx-transfer? stx-withdrawn contract-address burner)))
+        ;; transfer tokens from contract to tx-sender
+        (as-contract (contract-call? .magic-beans transfer tokens-withdrawn contract-address burner))
+      )
+    )
+  )
+)
+
 ;; Allow users to exchange STX and receive tokens using the constant-product formula
 (define-public (stx-to-token-swap (stx-amount uint))
   (begin 
@@ -78,9 +111,11 @@
       (token-balance (get-token-balance))
       ;; constant to maintain = STX * tokens
       (constant (* stx-balance token-balance))
+      ;; charge the fee. Fee is in basis points (1 = 0.01%), so divide by 10,000
+      (fee (/ (* stx-amount fee-basis-points) u10000))
       (new-stx-balance (+ stx-balance stx-amount))
-      ;; constant should = new STX * new tokens
-      (new-token-balance (/ constant new-stx-balance))
+      ;; constant should = (new STX - fee) * new tokens
+      (new-token-balance (/ constant (- new-stx-balance fee)))
       ;; pay the difference between previous and new token balance to user
       (tokens-to-pay (- token-balance new-token-balance))
       ;; put addresses into variables for ease of use
@@ -107,9 +142,11 @@
       (token-balance (get-token-balance))
       ;; constant to maintain = STX * tokens
       (constant (* stx-balance token-balance))
+      ;; charge the fee. Fee is in basis points (1 = 0.01%), so divide by 10,000
+      (fee (/ (* token-amount fee-basis-points) u10000))
       (new-token-balance (+ token-balance token-amount))
-      ;; constant should = new STX * new tokens
-      (new-stx-balance (/ constant new-token-balance))
+      ;; constant should = new STX * (new tokens - fee)
+      (new-stx-balance (/ constant (- new-token-balance fee)))
       ;; pay the difference between previous and new STX balance to user
       (stx-to-pay (- stx-balance new-stx-balance))
       ;; put addresses into variables for ease of use
