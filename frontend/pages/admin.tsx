@@ -1,4 +1,4 @@
-import { ContractCallRegularOptions, openContractCall, UserData } from "@stacks/connect";
+import { ContractCallRegularOptions, openContractCall } from "@stacks/connect";
 import { contractPrincipalCV, standardPrincipalCV, uintCV } from "@stacks/transactions";
 import { useState } from "react";
 import ActionButton from "../components/ActionButton";

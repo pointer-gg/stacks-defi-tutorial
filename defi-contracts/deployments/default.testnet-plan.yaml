@@ -1,0 +1,24 @@
+---
+id: 0
+name: Testnet deployment
+network: testnet
+node: "https://stacks-node-api.testnet.stacks.co"
+plan:
+  batches:
+    - id: 0
+      transactions:
+        - contract-publish:
+            contract-name: magic-beans
+            expected-sender: ST1RF441MG7VMFPN73DNHEH341DH7GDZW0MYD0GDY
+            path: contracts/magic-beans.clar
+            cost: 10910
+        - contract-publish:
+            contract-name: magic-beans-lp
+            expected-sender: ST1RF441MG7VMFPN73DNHEH341DH7GDZW0MYD0GDY
+            path: contracts/magic-beans-lp.clar
+            cost: 12970
+        - contract-publish:
+            contract-name: beanstalk-exchange
+            expected-sender: ST1RF441MG7VMFPN73DNHEH341DH7GDZW0MYD0GDY
+            path: contracts/beanstalk-exchange.clar
+            cost: 69470
