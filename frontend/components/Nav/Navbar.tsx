@@ -1,26 +1,30 @@
 import { PropsWithChildren } from 'react'
 import Link from 'next/link'
+import { UserNav } from './UserNav'
 
 interface NavbarLinkProps {
-  href: string;
+  href: string
 }
 
 function NavbarLink({ href, children }: PropsWithChildren<NavbarLinkProps>) {
   return (
-    <Link href={href}>
-      <a className="text-2xl text-grey-darkest hover:scale-105 hover:text-pink-600">
-        {children}
-      </a>
+    <Link
+      className="text-grey-darkest text-2xl hover:scale-105 hover:text-pink-600"
+      href={href}
+    >
+      {children}
     </Link>
   )
 }
 
 export default function Navbar() {
   return (
-    <nav className="flex justify-center w-full h-10 gap-4 px-4 pt-4 pb-20 font-sans md:px-20 ">
+    <nav className="flex h-10 w-full justify-center gap-4 px-4 pb-20 pt-4 font-sans md:px-20 ">
+      <NavbarLink href="/">Home</NavbarLink>
       <NavbarLink href="/admin">Admin</NavbarLink>
       <NavbarLink href="/liquidity">Liquidity</NavbarLink>
       <NavbarLink href="/swap">Swap</NavbarLink>
+      <UserNav />
     </nav>
   )
 }

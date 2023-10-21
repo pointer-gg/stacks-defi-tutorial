@@ -1,14 +1,19 @@
-import { PropsWithChildren } from "react";
-import Footer from "./Footer";
-import Navbar from "./Navbar";
+import { PropsWithChildren } from 'react'
+import Footer from './Footer'
+import Navbar from './Nav/Navbar'
+import { StakeCard } from './StakeCard'
 
-export default function Layout({ children }: PropsWithChildren<{}>) {
+interface UserSession {
+  userSession: any
+}
+
+import { userSession } from './ConnectWallet'
+
+export default function Layout({ children }: PropsWithChildren<UserSession>) {
   return (
-    <div className="flex flex-col min-h-screen gap-16">
+    <div className="flex min-h-screen flex-col gap-16">
       <Navbar />
-      <main className="mb-auto">
-        {children}
-      </main>
+      <main className="mb-auto">{children}</main>
       <Footer />
     </div>
   )
